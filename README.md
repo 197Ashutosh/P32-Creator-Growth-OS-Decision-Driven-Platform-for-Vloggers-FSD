@@ -86,11 +86,11 @@ JavaScript
 const BACKEND_URL = "[https://creator-os-backend-1-4jvy.onrender.com](https://creator-os-backend-1-4jvy.onrender.com)";
 ```
 👨‍💻 Author
-Ashutosh Bhardwaj
-Divyanshi Negi
-Specialization: B.Tech CSE (AI & ML), Sharda University
+--Ashutosh Bhardwaj
+--Divyanshi Negi
+--Specialization: B.Tech CSE (AI & ML), Sharda University
 
-Team Name: Upise
+--Team Name: Upise
 
 ⭐ Acknowledgment
 This project demonstrates the practical application of Artificial Intelligence and Cloud Infrastructure in solving real-world challenges within the modern digital economy.
