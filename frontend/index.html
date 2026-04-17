@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creator Growth OS | Command Center</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
+        
+        body, html { margin: 0; padding: 0; font-family: 'Poppins', sans-serif; background-color: #0f172a; color: #ffffff; min-height: 100vh; overflow-x: hidden; }
+        
+        /* Background Effects */
+        .circle1, .circle2 { position: fixed; border-radius: 50%; filter: blur(100px); z-index: -1; }
+        .circle1 { width: 40vw; height: 40vw; background: rgba(56, 189, 248, 0.1); top: -10%; left: -10%; }
+        .circle2 { width: 30vw; height: 30vw; background: rgba(168, 85, 247, 0.1); bottom: -10%; right: -10%; }
+        
+        .container { width: 95%; max-width: 1400px; margin: 40px auto; }
+        h1 { text-align: center; font-size: 2.5rem; letter-spacing: 1px; margin-bottom: 40px; }
+        h1 span { color: #38bdf8; text-shadow: 0 0 15px rgba(56, 189, 248, 0.4); }
+
+        .panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 25px; margin-bottom: 25px; transition: 0.3s; }
+
+        /* Step 1: Login Box */
+        .connect-box { max-width: 500px; margin: 100px auto; text-align: center; border: 1px solid #38bdf8; }
+        #connectForm { display: flex; gap: 10px; margin-top: 25px; }
+        
+        /* Step 2: Dashboard UI */
+        .channel-header { display: flex; align-items: center; gap: 25px; border-left: 5px solid #38bdf8; }
+        .channel-header img { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #38bdf8; box-shadow: 0 0 20px rgba(56,189,248,0.3); }
+        .channel-info h2 { margin: 0; font-size: 2rem; color: #f8fafc; }
+        .channel-info p { margin: 5px 0 0 0; color: #94a3b8; font-family: monospace; font-size: 0.9rem; }
+
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 20px; }
+        
+        .stat-card { text-align: center; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); }
+        .stat-card h4 { color: #94a3b8; margin: 0; font-size: 0.8rem; text-transform: uppercase; }
+        .stat-card .val { font-size: 1.6rem; font-weight: bold; margin-top: 5px; }
+
+        /* Form & Inputs */
+        input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #334155; background: #1e293b; color: white; box-sizing: border-box; outline: none; }
+        input:focus { border-color: #38bdf8; }
+        button { padding: 12px 25px; background: linear-gradient(135deg, #38bdf8, #818cf8); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(56, 189, 248, 0.4); }
+
+        #aiOutput { line-height: 1.6; color: #e2e8f0; font-size: 1.05rem; }
+        .hidden { display: none !important; }
+        
+        /* Loader */
+        .loader { border: 4px solid #334155; border-top: 4px solid #38bdf8; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="circle1"></div><div class="circle2"></div>
+    <div class="container">
+        <h1>Creator Growth <span>OS</span></h1>
+
+        <div id="setup" class="panel connect-box">
+            <h2 style="margin:0;">Initialize Engine</h2>
+            <p style="color:#94a3b8;">Enter YouTube Channel ID to begin analysis.</p>
+            <form id="connectForm">
+                <input type="text" id="cID" placeholder="Channel ID (e.g. UC_...)" required>
+                <button type="submit">Connect</button>
+            </form>
+            <div id="loader" class="hidden"><div class="loader"></div><p>Syncing Cloud Data...</p></div>
+        </div>
+
+        <div id="dashboard" class="hidden">
+            <div class="panel channel-header">
+                <img id="cImg" src="" alt="Profile">
+                <div class="channel-info">
+                    <h2 id="cName">Fetching...</h2>
+                    <p id="cHandle">ID: ...</p>
+                </div>
+                <div style="flex:1"></div>
+                <div style="display:flex; gap:15px;">
+                    <div class="stat-card"><h4>Subs</h4><div class="val" id="s1" style="color:#38bdf8">0</div></div>
+                    <div class="stat-card"><h4>Total Views</h4><div class="val" id="s2" style="color:#a855f7">0</div></div>
+                    <div class="stat-card"><h4>Videos</h4><div class="val" id="s3" style="color:#10b981">0</div></div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="panel">
+                    <h3 style="margin-top:0;">Smart Tracking</h3>
+                    <form id="trackForm">
+                        <label style="font-size:0.8rem; color:#94a3b8;">Video Category</label>
+                        <input type="text" id="cat" placeholder="e.g. Tech Review" style="margin-bottom:15px;" required>
+                        <label style="font-size:0.8rem; color:#94a3b8;">Views</label>
+                        <input type="number" id="v" placeholder="1000" style="margin-bottom:15px;" required>
+                        <label style="font-size:0.8rem; color:#94a3b8;">Engagement Rate (%)</label>
+                        <input type="number" step="0.1" id="e" placeholder="8.5" style="margin-bottom:20px;" required>
+                        <button type="submit" style="width:100%">Process AI Strategy</button>
+                    </form>
+                </div>
+
+                <div class="panel">
+                    <h3 style="margin-top:0;">Visual Analytics</h3>
+                    <canvas id="myChart" height="250"></canvas>
+                </div>
+
+                <div class="panel" style="border: 1px solid #818cf8; background: rgba(129, 140, 248, 0.05);">
+                    <h3 style="margin-top:0; color:#818cf8;">⚡ Decision Engine</h3>
+                    <div id="aiOutput">
+                        <p style="font-style:italic; color:#94a3b8;">Input video metrics to generate your next-action target using Llama 3.1 logic.</p>
+                    </div>
+                    <div id="aiLoader" class="hidden"><div class="loader"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // MASTER: YOUR LIVE RENDER URL
+        const BACKEND_URL = "https://creator-os-backend-1-4jvy.onrender.com";
+
+        let currentSubs = "0";
+        let chartObj;
+
+        // 1. Connect to YouTube via Java Backend
+        document.getElementById('connectForm').onsubmit = async (e) => {
+            e.preventDefault();
+            document.getElementById('loader').classList.remove('hidden');
+            const channelId = document.getElementById('cID').value;
+
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/youtube`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ channelId: channelId })
+                });
+                const data = await res.json();
+
+                if(data.error) throw new Error(data.error);
+
+                // UI Update
+                document.getElementById('setup').classList.add('hidden');
+                document.getElementById('dashboard').classList.remove('hidden');
+                
+                document.getElementById('cName').innerText = data.title;
+                document.getElementById('cImg').src = data.thumb;
+                document.getElementById('cHandle').innerText = "ID: " + channelId;
+                document.getElementById('s1').innerText = Number(data.subs).toLocaleString();
+                document.getElementById('s2').innerText = Number(data.views).toLocaleString();
+                document.getElementById('s3').innerText = data.videos;
+
+                currentSubs = data.subs;
+                updateChart(data.subs, data.videos);
+            } catch (err) {
+                alert("Connection failed! Ensure Render backend is 'Live' and Database is connected.");
+                console.error(err);
+            }
+            document.getElementById('loader').classList.add('hidden');
+        };
+
+        // 2. AI Recommendation Logic
+        document.getElementById('trackForm').onsubmit = async (e) => {
+            e.preventDefault();
+            document.getElementById('aiOutput').classList.add('hidden');
+            document.getElementById('aiLoader').classList.remove('hidden');
+
+            const payload = {
+                channelId: document.getElementById('cID').value,
+                subs: currentSubs,
+                category: document.getElementById('cat').value,
+                views: document.getElementById('v').value,
+                engagement: document.getElementById('e').value
+            };
+
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/recommendation`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                document.getElementById('aiOutput').innerHTML = `<span style="color:#38bdf8; font-weight:bold;">Next-Action Target:</span><br><br>${data.recommendation}`;
+            } catch (err) {
+                document.getElementById('aiOutput').innerText = "Error contacting Decision Engine.";
+            }
+            
+            document.getElementById('aiLoader').classList.add('hidden');
+            document.getElementById('aiOutput').classList.remove('hidden');
+        };
+
+        function updateChart(s, v) {
+            const ctx = document.getElementById('myChart').getContext('2d');
+            if(chartObj) chartObj.destroy();
+            chartObj = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Subs', 'Content Volume'],
+                    datasets: [{
+                        data: [s, v * 10], 
+                        backgroundColor: ['#38bdf8', '#10b981'],
+                        borderColor: '#0f172a',
+                        borderWidth: 5
+                    }]
+                },
+                options: { 
+                    cutout: '70%',
+                    plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', padding: 20 } } }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
